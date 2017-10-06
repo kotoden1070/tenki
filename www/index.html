@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+    <script src="components/loader.js"></script>
+    <link rel="stylesheet" href="components/loader.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+    	var xml_data="";
+		var tenki="";
+		$(function(){
+			//ボタンのクリックイベント
+			$(".button").on('click',function(){
+				
+				//ken_cdはinput typeのkenから
+
+				var ken = $(this).attr("ken_cd");
+
+				//ajax通信を行う
+				$.ajax({
+					url: 'http://javascriptajax.azurewebsites.net/get_tenki_json.php?city='+ken,
+					type:'GET',
+					dataType: 'json',
+
+				}).done(function(data){ //ajaxの通信に成功した場合
+					//受信成功時の処理をここに書く
+                    //天気の概況文
+    					$("#tenki").html("");
+						$("#tenki").append(data.description.text);
+						$("#tenki").append(data.description.publicTime);
+
+						//連想配列の長さを得る  Object.keysメソッド
+						var json_obj_length = Object.keys(data.forecasts).length;
+
+						//3日分のデータを表示する
+						$("#syukan").html("");
+						var html="";
+						html += '<tr>';
+						for(var i = 0; i < json_obj_length;i++){
+							html += '<td>' + data.forecasts[i].dateLabel + '<br>' + '<img src="' + data.forecasts[i].image.url + '">' + '<br>' + data.forecasts[i].image.title + '</td>';
+						}
+						html += '</tr>';
+						$("#syukan").append(html);
+
+						var json_obj_length2 = Object.keys(data.pinpointLocations).length;
+
+						$("#titen").html("<a>各地域の天気詳細ページ</a>");
+						var html="";
+						for(var i = 0; i < json_obj_length2;i++){
+							html += '<tr><td>' + '<a href="' + data.pinpointLocations[i].link + '">' + data.pinpointLocations[i].name + '</a>' + '</td></tr>';
+						}
+						$("#titen").append(html);
+
+				}).fail(function(data){ //ajaxの通信に失敗した場合
+					//受信失敗時の処理をここに書く
+		
+				});
+			})
+		});
+    </script>
+</head>
+<body>
+    <h1>天気予報</h1>
+	<br />
+    <input type="button" class="button" value="香川県" ken_cd="370000" style="WIDTH: 150px; HEIGHT: 50px">
+    <input type="button" class="button" value="愛媛県" ken_cd="380010" style="WIDTH: 150px; HEIGHT: 50px">
+    <br />
+    <input type="button" class="button" value="徳島県" ken_cd="360010" style="WIDTH: 150px; HEIGHT: 50px">
+    <input type="button" class="button" value="高知県" ken_cd="390010" style="WIDTH: 150px; HEIGHT: 50px">
+    <br />
+    <a>ここに天気を表示します</a>
+    
+    <p id="tenki"></p>
+    <table id="syukan">
+    		
+	</table>
+    
+	<table id="titen">
+    
+	</table>
+</body>
+</html>
